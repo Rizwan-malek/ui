@@ -8,5 +8,5 @@ dist
 .history
 .vercel
 .idea
-.env
 .data
+config.bat
