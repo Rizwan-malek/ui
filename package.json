@@ -30,8 +30,8 @@
     "./vue-plugin": {
       "types": "./vue-plugin.d.ts"
     },
-    "./app-config": {
-      "types": "./app-config.d.ts"
+    "./app.config": {
+      "types": "./app.config.d.ts"
     },
     "./runtime/*": "./dist/runtime/*",
     "./utils/*": {
@@ -46,7 +46,7 @@
   "imports": {
     "#build/ui/*": "./.nuxt/ui/*.ts",
     "#build/ui.css": "./.nuxt/ui.css",
-    "#build/app.config": "./app-config.d.ts"
+    "#build/app.config": "./app.config.d.ts"
   },
   "bin": {
     "nuxt-ui": "./cli/index.mjs"
@@ -57,7 +57,7 @@
   "files": [
     ".nuxt/ui",
     ".nuxt/ui.css",
-    "app-config.d.ts",
+    "app.config.d.ts",
     "dist",
     "cli",
     "vue-plugin.d.ts"
