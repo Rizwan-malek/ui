@@ -33,25 +33,60 @@ export const useRouterStub = () => ({
   currentRoute: ref({})
 })
 
-// Define a variable to check if vue-router is available
-let isVueRouterAvailable = false
+// Create a module-level cache for the imported modules
+const moduleCache: Record<string, any> = {}
 
-// Check if vue-router is available
-try {
-  // This is a build-time check that the bundler will optimize
-  isVueRouterAvailable = !!require.resolve('vue-router')
-} catch {
-  isVueRouterAvailable = false
+// Function to dynamically import a module and cache the result
+function lazyImport(moduleName: string) {
+  return () => {
+    if (!moduleCache[moduleName]) {
+      moduleCache[moduleName] = import(/* @vite-ignore */ moduleName).catch(() => ({}))
+    }
+    return moduleCache[moduleName]
+  }
 }
 
-// Export the appropriate functions based on availability
-export const useRoute = isVueRouterAvailable
-  ? (await import('vue-router')).useRoute
-  : useRouteStub
+// Lazy import vue-router
+const importVueRouter = lazyImport('vue-router')
 
-export const useRouter = isVueRouterAvailable
-  ? (await import('vue-router')).useRouter
-  : useRouterStub
+// Create wrapper functions that will dynamically import or use stubs
+export function useRoute() {
+  // Try to get the real implementation
+  const vueRouterModule = moduleCache['vue-router']
+  if (vueRouterModule && vueRouterModule.useRoute) {
+    return vueRouterModule.useRoute()
+  }
+
+  // If not available yet, try to import it
+  importVueRouter().then((module: any) => {
+    if (module && module.useRoute) {
+      // Module loaded successfully, but it's too late for this call
+      // Future calls will use the cached module
+    }
+  })
+
+  // Fall back to stub for this call
+  return useRouteStub()
+}
+
+export function useRouter() {
+  // Try to get the real implementation
+  const vueRouterModule = moduleCache['vue-router']
+  if (vueRouterModule && vueRouterModule.useRouter) {
+    return vueRouterModule.useRouter()
+  }
+
+  // If not available yet, try to import it
+  importVueRouter().then((module: any) => {
+    if (module && module.useRouter) {
+      // Module loaded successfully, but it's too late for this call
+      // Future calls will use the cached module
+    }
+  })
+
+  // Fall back to stub for this call
+  return useRouterStub()
+}
 
 export { defineShortcuts } from '../composables/defineShortcuts'
 export { useLocale } from '../composables/useLocale'
